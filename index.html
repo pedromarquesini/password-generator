@@ -32,13 +32,13 @@
             <button id="copy-1">
               <img src="copy.svg" width="42" />
             </button>
-            <button id="renew">
+            <button id="renew">              
               <img src="renew.svg" width="42" />
             </button>
           </div>
         </div>
         <div class="security-indicator">
-          <div id="security-indicator-bar" class="bar" style="width: 90%"></div>
+          <div id="security-indicator-bar" class="bar critical"></div>
         </div>
       </section>
 
@@ -86,6 +86,7 @@
       const upperCaseCheckEl = document.querySelector("#uppercase-check")
       const numberCheckEl = document.querySelector("#number-check")
       const symbolCheckEl = document.querySelector("#symbol-check")
+      const securityIndicatorBarEl = document.querySelector("#security-indicator-bar")
 
       let passwordLength = 16
 
@@ -94,15 +95,15 @@
         
         const upperCaseChars = "ABCDEFGHJKLMNPQRSTUVWXYZ"
         const numberChars = "123456789"
-        const symbolChars = "!?@&*()[]"
+        const symbolChars = "?!@&*()[]"
 
-        if(upperCaseCheckEl.checked){
+        if (upperCaseCheckEl.checked){
           chars += upperCaseChars
         }
-        if(numberCheckEl.checked){
+        if (numberCheckEl.checked){
           chars += numberChars
         }
-        if(symbolCheckEl.checked){
+        if (symbolCheckEl.checked){
           chars += symbolChars
         }        
 
@@ -114,6 +115,87 @@
         }
 
         inputEl.value = password
+        calculateQuality()
+        calculateFontSize()
+      }
+
+      function calculateQuality(){
+
+        // const percent = Math.round(
+        //   (passwordLength / 64) *80 +
+        //     (upperCaseCheckEl.checked ? 5 : 0)+
+        //     (numberCheckEl.checked ? 5 : 0)+
+        //     (symbolCheckEl.checked ? 10 : 0)
+        // )
+
+        const percent = Math.round((passwordLength / 64) * 100)
+        
+        let upperCaseTrue, symbolTrue, numberTrue 
+        if(upperCaseCheckEl.checked){
+          upperCaseTrue=1
+        }else {
+          upperCaseTrue=0
+        }
+
+        if(numberCheckEl.checked){
+          numberTrue=1
+        }else {
+          numberTrue=0
+        }
+
+        if(symbolCheckEl.checked){
+          symbolTrue=1
+        }else {
+          symbolTrue=0
+        }
+        
+        let securityValue
+        //console.log("Valores usados no calculo\nTamanho: "+percent+"\nMaiuscula: "+upperCaseTrue+"\nNumeros:"+numberTrue+"\nSimbolos:"+symbolTrue)
+        securityValue = (15*upperCaseTrue)+(25*numberTrue)+(25*symbolTrue)+(35 * percent)/100
+
+        securityIndicatorBarEl.style.width = `${securityValue}%`
+        //console.log(securityIndicatorBarEl.style.width)
+
+        if(securityValue>69){
+          //safe
+          securityIndicatorBarEl.classList.remove("critical")
+          securityIndicatorBarEl.classList.remove("warning")
+          securityIndicatorBarEl.classList.add("safe")
+        }else if(securityValue>50){
+          //warning
+          securityIndicatorBarEl.classList.remove("critical")
+          securityIndicatorBarEl.classList.add("warning")
+          securityIndicatorBarEl.classList.remove("safe")
+        }else{
+          //critical
+          securityIndicatorBarEl.classList.add("critical")
+          securityIndicatorBarEl.classList.remove("warning")
+          securityIndicatorBarEl.classList.remove("safe")
+        }
+
+        if(securityValue>=100){
+          securityIndicatorBarEl.classList.add("completed")
+        }
+      }
+
+      function calculateFontSize(){
+        if(passwordLength>45){
+          inputEl.classList.remove("font-sm")
+          inputEl.classList.remove("font-xs")
+          inputEl.classList.add("font-xxs")
+        }else if(passwordLength > 32){
+          inputEl.classList.remove("font-sm")
+          inputEl.classList.add("font-xs")
+          inputEl.classList.remove("font-xxs")
+        }else if(passwordLength >22){
+          inputEl.classList.add("font-sm")
+          inputEl.classList.remove("font-xs")
+          inputEl.classList.remove("font-xxs")
+        }else{
+          inputEl.classList.remove("font-sm")
+          inputEl.classList.remove("font-xs")
+          inputEl.classList.remove("font-xxs")
+        }
       }
 
       function copy() {
@@ -126,12 +208,13 @@
         document.querySelector("#password-length-text").innerText = passwordLength
         generatePassword()
       })
-      upperCaseCheckEl.addEventListener("click",generatePassword)
-      numberCheckEl.addEventListener("click",generatePassword)
-      symbolCheckEl.addEventListener("click",generatePassword)
+      upperCaseCheckEl.addEventListener("click", generatePassword)
+      numberCheckEl.addEventListener("click", generatePassword)
+      symbolCheckEl.addEventListener("click", generatePassword)
 
       document.querySelector("#copy-1").addEventListener("click", copy)
       document.querySelector("#copy-2").addEventListener("click", copy)
+      document.querySelector("#renew").addEventListener("click",generatePassword)
 
       generatePassword()
     </script>
