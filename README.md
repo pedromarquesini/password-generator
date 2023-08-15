@@ -1,2 +1,2 @@
 # password-generator
-Password Generator - Beginner level JS project
+Password Generator - Beginner level JS Vanilla project
